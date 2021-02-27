@@ -1,46 +1,34 @@
-import { createWorkbook, download as dl } from "~matyunya/ellxcel";
 import { processed, aggregated } from "./store.js";
 
+function d(filename, blob) {
+  let element = document.createElement('a');
+  element.setAttribute('href', URL.createObjectURL(blob));
+  element.setAttribute('download', filename);
 
-function create() {
-  const wb = createWorkbook();
-  const processedSheet = wb.addWorksheet("Filtered");
-  const aggSheet = wb.addWorksheet("Aggregated");
+  element.style.display = 'none';
+  document.body.appendChild(element);
 
-  addData(processedSheet, processed.get());
-  addData(aggSheet, aggregated.get());
+  element.click();
 
-  return wb;
+  document.body.removeChild(element);
 }
 
 
-function addData(sheet, data) {
-  addColumns(sheet, data);
-  addRows(sheet, data);
-}
+export function dl(buffer, filename = "export.xlsx") {
+  const blob = new Blob([buffer], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
 
-function addColumns(sheet, data) {
-  if (!data.length) return;
-
-  const cols = Object.keys(data[0]).map(key => ({
-    header: key,
-    key,
-    width: 11,
-  }));
-  sheet.columns = cols;
-}
-
-function addRows(sheet, data) {
-  if (!data.length) return;
-
-  sheet.addRows(data.map(d => ({
-    ...d,
-  })));
+  return d(filename, blob);
 }
 
 export async function download() {
-  const wb = create();
-  const buf = await wb.xlsx.writeBuffer();
+  const { workbook } = require('./index.ellx');
+
+  const wb = await workbook.get()();
+
+  wb.sheet("Regionロー").cell("B21").value("FUCK YES");
+
+  // TODO: move off main thread
+  const buf = await wb.outputAsync("arraybuffer");
 
   return dl(buf, "report.xlsx");
 }

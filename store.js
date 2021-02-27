@@ -1,7 +1,7 @@
 import { derived, select, tx } from "tinyx";
 import { writable } from "svelte/store";
 import { fromCSV, DataFrame } from 'data-forge@1.8.17/dist/esm/index.esm.js';
-import { prefectures, pick, pickMap, zip } from "./prefectures.js";
+import getRandomData from "./random.js";
 import {
   toBlocks,
   calcRowsCols,
@@ -42,6 +42,7 @@ export const orderPred = derived(
   orderBy,
   orderByColFn,
 );
+
 export const orderMethodAgg = derived(
   orderByAggregated,
   orderByDirFn,
@@ -52,35 +53,16 @@ export const orderPredAgg = derived(
   orderByColFn,
 );
 
-const brands = {
-  'Sparkling Soft Drinks':['Coca-Cola', 'Sprite', 'Fanta', 'Schweppes', 'Appletiser', 'Fresca', "Barq's"], 'Waters & Hydration':['DASANI', 'smartwater', 'POWERADE', 'vitaminwater', 'Topo Chico', 'Aquarius', 'I LOHAS', 'Ciel'], 'Juices, Dairy and Plant-Based':['Minute Maid', 'innocent', 'Simply', 'fairlife', 'AdeS'], 'Coffees':['Georgia Coffee', 'Costa Coffee'], 'Teas':['Fuze Tea', 'Honest', 'Gold Peak', 'Peace Tea', 'Ayataka', 'Doğadan']
-};
+const randomData = getRandomData();
 
-const years = [...new Array(10)].map((_, i) => i + 2011);
-const months = [...new Array(12)].map((_, i) => i + 1);
-
-function randomEntry() {
-  return Object.assign({
-    amount: String(Math.ceil(Math.random() * 100)),
-    year: String(pick(years)),
-    month: String(pick(months))
-  },
-    Object.fromEntries(zip(['category', 'brand'], pickMap(brands))),
-    Object.fromEntries(zip(['region', 'prefecture'], pickMap(prefectures))),
-  )
-}
-
-function getRandomData() {
-  return [...new Array(1000)].map(randomEntry);
-}
-
-export const processedCSV = derived(store, ({ useGeneratedData, csv }) => {
-  return useGeneratedData ? new DataFrame(getRandomData()) : fromCSV(csv);
+export const processedCSV = derived(useGeneratedData, $v => {
+  return $v ? new DataFrame(randomData) : fromCSV(csv.get());
 });
 
 export const preprocessed = derived(
-  processedCSV,
-  $v => $v
+  store,
+  () => processedCSV
+    .get()
     .parseFloats(["amount"])
     .dropSeries(prefecture.get() ? ["region", "month"] : ["month"])
 );

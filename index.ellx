@@ -1,52 +1,38 @@
 version: 1.1
 nodes:
-  $17 = preprocessed
-  $21 = aggregated
-  $18 = processed
+  template = fetch("/template.xlsx").arrayBuffer()
+  XlsxPopulate = require("xlsx-populate/browser/xlsx-populate.min.js")
+  workbook = () => XlsxPopulate.fromDataAsync(template)
 layout:
-[,,,
-  [
+[,,,,,,,
+  [,
     {
-      "value": "Preprocessed data:"
+      "value": "Template: (move to s3)"
     }
   ],
-  [
+  [,
     {
-      "node": "$17"
+      "node": "template"
     }
   ],,
-  [
+  [,
     {
-      "value": "Aggregated data:"
+      "value": "XlsxPopulate:"
+    }
+  ],
+  [,
+    {
+      "node": "XlsxPopulate"
     }
   ],,
-  [
+  [,
     {
-      "node": "$21",
-      "expansion": {
-        "vertical": true,
-        "secondary": true,
-        "labelsTop": true,
-        "height": 7,
-        "width": 5
-      }
+      "value": "Workbook:"
     }
-  ],,,,,,,,
-  [
+  ],
+  [,
     {
-      "value": "Processed data:"
-    }
-  ],,
-  [
-    {
-      "node": "$18",
-      "expansion": {
-        "vertical": true,
-        "secondary": true,
-        "labelsTop": true,
-        "height": 11,
-        "width": 4
-      }
+      "node": "workbook"
     }
   ]
 ]

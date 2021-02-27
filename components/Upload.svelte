@@ -36,6 +36,6 @@
   class:bg-gray-200={disabled}
   class:pointer-events-none={disabled}
   on:click={() => node.click()}
-  class="button">
-  Upload CSV
+  class="button {$$props.class || ""}">
+  <slot>Upload CSV</slot>
 </button>
