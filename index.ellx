@@ -1,0 +1,52 @@
+version: 1.1
+nodes:
+  $17 = preprocessed
+  $21 = aggregated
+  $18 = processed
+layout:
+[,,,
+  [
+    {
+      "value": "Preprocessed data:"
+    }
+  ],
+  [
+    {
+      "node": "$17"
+    }
+  ],,
+  [
+    {
+      "value": "Aggregated data:"
+    }
+  ],,
+  [
+    {
+      "node": "$21",
+      "expansion": {
+        "vertical": true,
+        "secondary": true,
+        "labelsTop": true,
+        "height": 7,
+        "width": 5
+      }
+    }
+  ],,,,,,,,
+  [
+    {
+      "value": "Processed data:"
+    }
+  ],,
+  [
+    {
+      "node": "$18",
+      "expansion": {
+        "vertical": true,
+        "secondary": true,
+        "labelsTop": true,
+        "height": 11,
+        "width": 4
+      }
+    }
+  ]
+]
