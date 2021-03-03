@@ -1,34 +1,23 @@
-import { processed, aggregated } from "./store.js";
+import download from "~ellx-hub/lib/utils/download.js";
+import { generateExcel } from "./worker.js";
+import { get } from "svelte/store";
+import { csvData } from "./store.js";
+import { runSaga } from 'redux-saga';
 
-function d(filename, blob) {
-  let element = document.createElement('a');
-  element.setAttribute('href', URL.createObjectURL(blob));
-  element.setAttribute('download', filename);
+// Suppress logging errors bubbled up from spawned tasks
+const onError = () => {};
 
-  element.style.display = 'none';
-  document.body.appendChild(element);
+export const dispatch = runSaga.bind(null, { onError });
+export const run = (flow, ...args) => dispatch(flow, ...args).toPromise();
 
-  element.click();
+// TODO: convert to generator to allow canceling logic
+export default async function dl() {
+  console.log(new Date(), 'init');
+  const buf = await run(generateExcel, get(csvData).toArray());
 
-  document.body.removeChild(element);
-}
+  const blob = new Blob([buf], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
 
+  console.log(new Date(), 'downloading');
 
-export function dl(buffer, filename = "export.xlsx") {
-  const blob = new Blob([buffer], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-
-  return d(filename, blob);
-}
-
-export async function download() {
-  const { workbook } = require('./index.ellx');
-
-  const wb = await workbook.get()();
-
-  wb.sheet("Regionロー").cell("B21").value("FUCK YES");
-
-  // TODO: move off main thread
-  const buf = await wb.outputAsync("arraybuffer");
-
-  return dl(buf, "report.xlsx");
+  return download("report.xlsx", blob);
 }

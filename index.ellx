@@ -1,38 +1,5 @@
 version: 1.1
 nodes:
-  template = fetch("/template.xlsx").arrayBuffer()
-  XlsxPopulate = require("xlsx-populate/browser/xlsx-populate.min.js")
-  workbook = () => XlsxPopulate.fromDataAsync(template)
 layout:
-[,,,,,,,
-  [,
-    {
-      "value": "Template: (move to s3)"
-    }
-  ],
-  [,
-    {
-      "node": "template"
-    }
-  ],,
-  [,
-    {
-      "value": "XlsxPopulate:"
-    }
-  ],
-  [,
-    {
-      "node": "XlsxPopulate"
-    }
-  ],,
-  [,
-    {
-      "value": "Workbook:"
-    }
-  ],
-  [,
-    {
-      "node": "workbook"
-    }
-  ]
+[
 ]

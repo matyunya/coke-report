@@ -7,13 +7,7 @@
 
   function read(e) {
     var file = e.target.files.item(0);
-    var reader = new FileReader();
-
-    reader.onload = function() {
-      dispatch("upload", reader.result);
-    }
-
-    reader.readAsText(file);
+    dispatch("attached", file);
   }
 </script>
 
@@ -36,6 +30,6 @@
   class:bg-gray-200={disabled}
   class:pointer-events-none={disabled}
   on:click={() => node.click()}
-  class="button {$$props.class || ""}">
+  class="button ring-blue-500 {$$props.class || ""}">
   <slot>Upload CSV</slot>
 </button>

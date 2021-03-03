@@ -15,8 +15,6 @@ export const pickMap = obj => {
 
 export const zip = (a, b) => a.map((e, i) => [e, b[i]]);
 
-export { DataFrame } from 'data-forge@1.8.17/dist/esm/index.esm.js';
-
 export class Test {
   constructor(value) {
     this.value = value;
