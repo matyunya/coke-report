@@ -1,11 +1,10 @@
 <script>
   import Upload from "/components/Upload.svelte";
   import Sheet from "/components/Sheet.svelte";
-  import { fly } from "svelte/transition";
   import { onMount } from "svelte";
   import headlong from "~matyunya/headlong";
   import { readCSV, sort, transformed } from "./store.js";
-  import download from "./toXLS.js";
+  import download, { fetchTemplate } from "./toXLS.js";
   import { classes } from "./headlong-classes.js";
 
   let disabled = false;
@@ -16,7 +15,7 @@
     body.classList.add("opacity-0");
 
     const { unsubscribe, apply } = headlong({ classes });
-    "bg-gradient-to-r to-blue-50 dark:from-gray-900 via-gray-50 dark:via-gray-800 from-warm-gray-50 dark:to-warm-gray-800 transition duration-500"
+    "bg-gradient-to-r to-blue-50 dark:from-gray-900 via-gray-50 dark:via-gray-800 from-warm-gray-50 dark:to-warm-gray-800 transition duration-500 w-full h-full"
       .split(" ")
       .map((c) => body.classList.add(c));
 
@@ -36,10 +35,27 @@
 
     return unsubscribe;
   });
+
+  let readingCSV = false;
 </script>
 
 <div class="fixed w-full h-10 p-1 top-0 z-20 blurred-bg flex">
-  <Upload on:attached={(e) => readCSV(e.detail)} />
+  <Upload
+    disabled={readingCSV}
+    on:attached={async (e) => {
+      try {
+        readingCSV = true;
+        await readCSV(e.detail);
+      } finally {
+        readingCSV = false;
+      }
+    }}>
+    {readingCSV ? "Loading CSV..." : "Upload CSV"}
+  </Upload>
+
+  <Upload class="ring-emerald-700" on:attached={(e) => fetchTemplate(e.detail)}>
+    Upload Excel template
+  </Upload>
 
   <button
     on:click={async () => {
@@ -63,6 +79,9 @@
 
 <Sheet bind:sort={$sort} classes="mt-12" df={$transformed} columnWidth={150} />
 
+<!-- Uncomment to inspect detected types -->
+
+<!-- <Sheet bind:sort={$sort} classes="mt-12" df={$transformed.detectTypes()} columnWidth={150} /> -->
 <style>
   .blurred-bg {
     backdrop-filter: blur(2px);

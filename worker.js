@@ -16,8 +16,6 @@ function makeWorker(bodyFunction) {
     const { type, taskId, entityId, output } = event.data;
     const request = runningTasks.get(entityId);
 
-    console.log({request, type, taskId, entityId, output})
-
     if (!request || request.taskId !== taskId) return;
     const response = type === 'error' ? [new Error(output)] : [null, output];
 
@@ -32,8 +30,6 @@ function makeWorker(bodyFunction) {
 
     runningTasks.set(entityId, { taskId, callbacks });
 
-    console.log(runningTasks.get(entityId));
-
     worker.postMessage({ taskId, entityId, ...params });
   }
 }
@@ -42,25 +38,18 @@ function makeWorker(bodyFunction) {
 function xlsxWorker() {
   importScripts(
     "https://cdn.jsdelivr.net/npm/xlsx-populate/browser/xlsx-populate.min.js",
-    );
-
+  );
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
   const alphabet = [...letters, ...letters.map(i => "A" + i)];
   let wb;
 
-  const prepare = fetch("http://localhost:7778/template.xlsx")
-    .then(res => res.arrayBuffer())
-    .then(template => XlsxPopulate.fromDataAsync(template))
-    .then(workbook => wb = workbook);
-
   async function build(params) {
-    await prepare;
     params.data.forEach((row, i) => {
       Object.keys(row).forEach((key, j) => {
         wb.sheet("d1").cell(alphabet[j + 1] + (i + 13)).value(row[key]);
-        wb.sheet("dMkt").cell(alphabet[j + 1] + (i + 13)).value(row[key]);
-        wb.sheet("SSDTTL").cell(alphabet[j + 23] + (i + 13)).value(row[key]);
-        wb.sheet("SSDTTL2").cell(alphabet[j + 23] + (i + 13)).value(row[key]);
+        // wb.sheet("dMkt").cell(alphabet[j + 1] + (i + 13)).value(row[key]);
+        // wb.sheet("SSDTTL").cell(alphabet[j + 23] + (i + 13)).value(row[key]);
+        // wb.sheet("SSDTTL2").cell(alphabet[j + 23] + (i + 13)).value(row[key]);
       });
     });
 
@@ -68,7 +57,13 @@ function xlsxWorker() {
   }
 
   self.addEventListener('message', async (event) => {
+    if (event.data.type === 'template') {
+      wb = await XlsxPopulate.fromDataAsync(event.data.data);
+      return;
+    }
+
     if (event.data.type === 'build') {
+      if (!wb) throw new Error('Workbook is not ready');
       const {
         taskId,
         id,
@@ -95,4 +90,8 @@ const requestGenerate = makeWorker(xlsxWorker);
 
 export function* generateExcel(data) {
   return yield cps(requestGenerate, "test", { data, type: 'build' });
+}
+
+export function* uploadTemplate(arrayBuffer) {
+  return yield cps(requestGenerate, "set template", { data: arrayBuffer, type: 'template' });
 }

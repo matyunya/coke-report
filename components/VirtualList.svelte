@@ -1,9 +1,11 @@
 <script>
   import { onMount, tick } from 'svelte';
   // props
-  export let items;
   export let height = '100%';
   export let itemHeight = undefined;
+  export let itemCount = 0;
+  export let maxItems = 0;
+  export let updated = new Date();
   let foo;
   // read-only, but visible to consumers via bind:start
   export let start = 0;
@@ -19,21 +21,22 @@
   let top = 0;
   let bottom = 0;
   let average_height;
-  $: visible = items.slice(start, end).map((data, i) => {
-    return { index: i + start, data };
-  });
+
+  $: visible = updated ? [...Array(maxItems + 20).keys()] : [];
+
   // whenever `items` changes, invalidate the current heightmap
-  $: if (mounted) refresh(items, viewport_height, itemHeight);
-  async function refresh(items, viewport_height, itemHeight) {
+  $: if (mounted) refresh(itemCount, viewport_height, itemHeight);
+
+  async function refresh(itemCount, viewport_height, itemHeight) {
     const { scrollTop } = viewport;
     await tick(); // wait until the DOM is up to date
     let content_height = top - scrollTop;
     let i = start;
-    while (content_height < viewport_height && i < items.length) {
+    while (content_height < viewport_height && i < itemCount) {
       let row = rows[i - start];
       if (!row) {
         end = i + 1;
-//         await tick(); // render the newly visible row
+        await tick(); // render the newly visible row
         row = rows[i - start];
       }
       const row_height = height_map[i] = itemHeight || row.offsetHeight;
@@ -41,10 +44,10 @@
       i += 1;
     }
     end = i;
-    const remaining = items.length - end;
+    const remaining = itemCount - end;
     average_height = (top + content_height) / end;
     bottom = remaining * average_height;
-    height_map.length = items.length;
+    height_map.length = itemCount;
   }
   async function handle_scroll() {
     const { scrollTop } = viewport;
@@ -54,7 +57,7 @@
     }
     let i = 0;
     let y = 0;
-    while (i < items.length) {
+    while (i < itemCount) {
       const row_height = height_map[i] || average_height;
       if (y + row_height > scrollTop) {
         start = i;
@@ -64,15 +67,15 @@
       y += row_height;
       i += 1;
     }
-    while (i < items.length) {
+    while (i < itemCount) {
       y += height_map[i] || average_height;
       i += 1;
       if (y > scrollTop + viewport_height) break;
     }
     end = i;
-    const remaining = items.length - end;
+    const remaining = itemCount - end;
     average_height = y / end;
-    while (i < items.length) height_map[i++] = average_height;
+    while (i < itemCount) height_map[i++] = average_height;
     bottom = remaining * average_height;
     // prevent jumping if we scrolled up into unknown territory
     if (start < old_start) {
@@ -124,9 +127,9 @@
     bind:this={contents}
     style="padding-top: {top}px; padding-bottom: {bottom}px;"
   >
-    {#each visible as row (row.index)}
+    {#each visible as index}
       <svelte-virtual-list-row>
-        <slot item={row.data}>Missing template</slot>
+        <slot index={index + start}>Missing template</slot>
       </svelte-virtual-list-row>
     {/each}
   </svelte-virtual-list-contents>

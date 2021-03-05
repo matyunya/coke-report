@@ -7,7 +7,7 @@
 </script>
 
 <div in:fade={{ duration: 150 }} class="flex flex-row">
-  {#each Object.values(item) as cell}
+  {#each item as cell}
     <div
       class="w-block px-1 overflow-hidden dark:bg-dark-700 dark:text-white truncate {$$props.class || ""}"
       style="width: {columnWidth}px; height: {rowHeight}px;"
