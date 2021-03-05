@@ -1,5 +1,4 @@
 <script>
-  // import VirtualList from "svelte-tiny-virtual-list";
   import VirtualList from "/components/VirtualList.svelte";
   import HeadersRow from "./HeadersRow.svelte";
   import Row from "./Row.svelte";
@@ -51,7 +50,7 @@
   class="{classes} dark:text-white text-black gridlayout__container mx-auto dark:bg-gray-800"
   style="width: {df.getColumnNames().length * columnWidth}px;"
 >
-  <HeadersRow bind:sort item={df.getColumnNames()} {columnWidth} {rowHeight} />
+  <HeadersRow {sort} item={df.getColumnNames()} {columnWidth} {rowHeight} on:sort />
   {#if df && count > 0}
     <VirtualList
       height="{Math.min(count, maxItems) * rowHeight}px"

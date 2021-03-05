@@ -3,7 +3,7 @@
   import Sheet from "/components/Sheet.svelte";
   import { onMount } from "svelte";
   import headlong from "~matyunya/headlong";
-  import { readCSV, sort, transformed } from "./store.js";
+  import { readCSV, sort, setSort, transformed } from "./store.js";
   import download, { fetchTemplate } from "./toXLS.js";
   import { classes } from "./headlong-classes.js";
 
@@ -77,7 +77,13 @@
   </button>
 </div>
 
-<Sheet bind:sort={$sort} classes="mt-12" df={$transformed} columnWidth={150} />
+<Sheet
+  sort={$sort}
+  classes="mt-12"
+  df={$transformed}
+  columnWidth={150}
+  on:sort={e => setSort(e.detail)}
+/>
 
 <!-- Uncomment to inspect detected types -->
 

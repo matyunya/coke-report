@@ -1,5 +1,8 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   import Row from "./Row.svelte";
+
+  const dispatch = createEventDispatcher();
 
   export let sort;
   export let item;
@@ -7,11 +10,13 @@
   export let columnWidth;
 
   function updateSort(column) {
-    if (sort[column] === false) {
-      sort[column] = undefined;
+    let s = { ...sort };
+    if (s[column] === false) {
+      s[column] = undefined;
     } else {
-      sort[column] = !Boolean(sort[column]);
+      s[column] = !Boolean(s[column]);
     }
+    dispatch("sort", s);
   }
 </script>
 
