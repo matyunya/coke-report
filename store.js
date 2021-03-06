@@ -5,9 +5,13 @@ import { DataFrame } from 'data-forge@1.8.17/dist/esm/index.esm.js';
 export const store = tx({
   df: new DataFrame([]),
   sort: {},
+  title: "",
 });
 
+// window.eval.call(window,'(function (element) {'+src+'})')(element);
+
 export const sort = derived(store, s => s.sort);
+export const title = derived(store, s => s.title);
 
 export const transformed = derived(store, ({ df, sort }) => {
   if (!sort) return df;
@@ -28,8 +32,11 @@ export const transformed = derived(store, ({ df, sort }) => {
   );
 });
 
-function SET_DF(data) {
-  return ({ set }) => set('df', data);
+function SET_DF({ df, title }) {
+  return ({ set }) => {
+    set('df', df);
+    set('title', title);
+  }
 }
 
 function SET_SORT(sort) {
@@ -41,13 +48,16 @@ export function setSort(v) {
 }
 
 export function readCSV(file) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     Papa.parse(file, {
       worker: true,
       header: true,
       skipEmptyLines: true,
       dynamicTyping: true,
-      complete: ({ data }) => resolve(store.commit(SET_DF, new DataFrame(data))),
+      error: (error) => reject(error),
+      complete: ({ data }) => resolve(
+        store.commit(SET_DF, { df: new DataFrame(data), title: file.name })
+      ),
     })
   })
 }

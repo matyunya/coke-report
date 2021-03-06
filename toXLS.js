@@ -11,12 +11,8 @@ export const run = (flow, ...args) => dispatch(flow, ...args).toPromise();
 
 // TODO: convert to generator to allow canceling logic
 export default async function dl() {
-  console.log(new Date(), 'init');
   const buf = await run(generateExcel, transformed.get().toArray());
-
   const blob = new Blob([buf], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-
-  console.log(new Date(), 'downloading');
 
   return download("report.xlsx", blob);
 }

@@ -1,95 +1,42 @@
 <script>
-  import Upload from "/components/Upload.svelte";
   import Sheet from "/components/Sheet.svelte";
   import { onMount } from "svelte";
   import headlong from "~matyunya/headlong";
-  import { readCSV, sort, setSort, transformed } from "./store.js";
-  import download, { fetchTemplate } from "./toXLS.js";
-  import { classes } from "./headlong-classes.js";
+  import { sort, setSort, transformed, title } from "/store.js";
+  import { classes } from "/headlong-classes.js";
 
-  let disabled = false;
+  export let columnWidth = 150;
 
   onMount(() => {
-    const body = document.querySelector("body");
+    try {
+      const { unsubscribe, apply } = headlong({ classes });
+      apply(
+        ".button",
+        "max-w-2xl px-1 mx-1 tracking-tight font-mono transition duration-500"
+      );
 
-    body.classList.add("opacity-0");
+      apply(
+        ".header",
+        "capitalize text-blue-gray-800 cursor-pointer select-none bg-opacity-5 border-b border-gray-200 divide-y-1"
+      );
 
-    const { unsubscribe, apply } = headlong({ classes });
-    "bg-gradient-to-r to-blue-50 dark:from-gray-900 via-gray-50 dark:via-gray-800 from-warm-gray-50 dark:to-warm-gray-800 transition duration-500 w-full h-full"
-      .split(" ")
-      .map((c) => body.classList.add(c));
+      apply(".gridlayout__container", "shadow rounded bg-white");
 
-    body.classList.remove("opacity-0");
-
-    apply(
-      ".button",
-      "max-w-2xl px-2 mx-4 text-xs bg-white tracking-wide font-mono dark:from-gray-900 dark:via-gray-800 to-warm-gray-100 dark:to-warm-gray-800 hover:ring-1 ring-0  transition duration-150 shadow-sm rounded-sm"
-    );
-
-    apply(
-      ".header",
-      "capitalize font-bold cursor-pointer select-none bg-opacity-5 border-b border-gray-200"
-    );
-
-    apply(".gridlayout__container", "shadow rounded bg-white");
-
-    return unsubscribe;
+      return unsubscribe;
+    } catch (e) {
+      console.error(e); //already running
+    }
   });
-
-  let readingCSV = false;
 </script>
-
-<div class="fixed w-full h-10 p-1 top-0 z-20 blurred-bg flex">
-  <Upload
-    disabled={readingCSV}
-    on:attached={async (e) => {
-      try {
-        readingCSV = true;
-        await readCSV(e.detail);
-      } finally {
-        readingCSV = false;
-      }
-    }}>
-    {readingCSV ? "Loading CSV..." : "Upload CSV"}
-  </Upload>
-
-  <Upload class="ring-emerald-700" on:attached={(e) => fetchTemplate(e.detail)}>
-    Upload Excel template
-  </Upload>
-
-  <button
-    on:click={async () => {
-      disabled = true;
-      try {
-        await download();
-      } finally {
-        disabled = false;
-      }
-    }}
-    class:opacity-50={disabled}
-    class:hover:ring-1={!disabled}
-    class:bg-gray-200={disabled}
-    class:pointer-events-none={disabled}
-    class="button ring-green-500"
-    {disabled}
-  >
-    {disabled ? "Generating file..." : "Export to Excel"}
-  </button>
-</div>
 
 <Sheet
   sort={$sort}
-  classes="mt-12"
   df={$transformed}
-  columnWidth={150}
-  on:sort={e => setSort(e.detail)}
+  title={$title}
+  on:sort={(e) => setSort(e.detail)}
+  {columnWidth}
 />
 
 <!-- Uncomment to inspect detected types -->
 
 <!-- <Sheet bind:sort={$sort} classes="mt-12" df={$transformed.detectTypes()} columnWidth={150} /> -->
-<style>
-  .blurred-bg {
-    backdrop-filter: blur(2px);
-  }
-</style>

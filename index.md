@@ -19,6 +19,22 @@ for operating on tabular data.
 - Automatically delegate operations on large scale data to server-side cells;
 - Enable deployment of final calculations only.
 
+## Sheet TODOs
+
+- Turn data frame into worker (maybe worker per frame?);
+- Resizable columns;
+- Drag'n'drop columns order;
+- Editable cells;
+- UX for changing data types;
+- Bind CSV/Excel export to each sheet;
+- Add sheet UX using any data frame or new file.
+
+### Integrate sheet with data frame
+
+- Instantiate store per sheet;
+- Add dataframe title;
+- Move import/export sheet actions into sheet;
+- Add table view toggle leaving just title, actions menu and row count.
 
 ## Links
 

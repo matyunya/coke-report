@@ -11,12 +11,6 @@
   }
 </script>
 
-<style>
-  :global(.mode-dark) input {
-    color: white;
-  }
-</style>
-
 <input
   bind:this={node}
   type="file"
@@ -26,10 +20,9 @@
 />
 <button
   class:opacity-50={disabled}
-  class:hover:ring-1={!disabled}
-  class:bg-gray-200={disabled}
+  class:text-gray-500={disabled}
   class:pointer-events-none={disabled}
   on:click={() => node.click()}
-  class="button {$$props.class || "ring-blue-500"}">
+  class="button hover:underline {$$props.class || ""}">
   <slot>Upload CSV</slot>
 </button>
