@@ -3,17 +3,15 @@
   import HeadersRow from "./HeadersRow.svelte";
   import Row from "./Row.svelte";
   import Meta from "./Meta.svelte";
+  import { sort, setSort, transformed, summary } from "/store.js";
 
-  export let df;
   export let rowHeight = 20;
   export let columnWidth = 80;
-  export let classes = "";
-  export let sort = {};
+  export let classes = "m-4";
   export let maxItems = 30;
-  export let title;
 
-  $: count = df.count();
-  $: columnNames = df.getColumnNames();
+  $: count = $transformed.count();
+  $: columnNames = $transformed.getColumnNames();
   $: height = (Math.min(count, maxItems) * rowHeight || 600) + "px";
 
   let start = 0,
@@ -23,13 +21,12 @@
   let updated = new Date();
   let visible = true;
 
-  $: if (df) {
-    console.log("rebuilding cache");
+  $: if ($transformed) {
     rebuildCache();
     updated = new Date();
   }
 
-  const getValue = (i) => Object.values(df.at(i) || {});
+  const getValue = (i) => Object.values($transformed.at(i) || {});
 
   function rebuildCache() {
     cache =
@@ -53,10 +50,17 @@
   class="{classes} dark:text-gray-100 text-black gridlayout__container dark:bg-gray-700"
   style="width: {columnNames.length * columnWidth || 600}px;"
 >
-  <Meta bind:visible {title} />
+  <Meta bind:visible />
   {#if visible}
-    <HeadersRow {sort} item={columnNames} {columnWidth} {rowHeight} on:sort />
-    {#if df && count > 0}
+    <HeadersRow
+      sort={$sort}
+      item={columnNames}
+      {columnWidth}
+      {rowHeight}
+      on:sort
+      on:sort={(e) => setSort(e.detail)}
+    />
+    {#if $transformed && count > 0}
       <VirtualList
         {height}
         {maxItems}
@@ -75,7 +79,9 @@
       </div>
     {/if}
   {:else}
-    Show n rows, some summary?
+    <div class="p-8">
+      {$summary}
+    </div>
   {/if}
 </div>
 

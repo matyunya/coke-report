@@ -19,9 +19,7 @@
   {disabled}
 />
 <button
-  class:opacity-50={disabled}
-  class:text-gray-500={disabled}
-  class:pointer-events-none={disabled}
+  {disabled}
   on:click={() => node.click()}
   class="button hover:underline {$$props.class || ""}">
   <slot>Upload CSV</slot>

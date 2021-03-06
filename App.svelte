@@ -2,9 +2,10 @@
   import Sheet from "/components/Sheet.svelte";
   import { onMount } from "svelte";
   import headlong from "~matyunya/headlong";
-  import { sort, setSort, transformed, title } from "/store.js";
   import { classes } from "/headlong-classes.js";
+  import { store } from "/store.js";
 
+  export const value = store;
   export let columnWidth = 150;
 
   onMount(() => {
@@ -12,8 +13,16 @@
       const { unsubscribe, apply } = headlong({ classes });
       apply(
         ".button",
-        "max-w-2xl px-1 mx-1 tracking-tight font-mono transition duration-500"
+        "max-w-2xl pl-3 transition font-medium duration-500"
       );
+
+      apply(
+        ".button:disabled",
+        "opacity-50 text-gray-400 pointer-events-none",
+      );
+
+      apply(".button:hover", "text-black underline");
+      apply(".mode-dark .button:hover", "text-white");
 
       apply(
         ".header",
@@ -30,11 +39,8 @@
 </script>
 
 <Sheet
-  sort={$sort}
-  df={$transformed}
-  title={$title}
-  on:sort={(e) => setSort(e.detail)}
   {columnWidth}
+  on:sort
 />
 
 <!-- Uncomment to inspect detected types -->

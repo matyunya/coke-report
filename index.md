@@ -7,6 +7,7 @@ for operating on tabular data.
 
 - Upload CSV;
 - Create data frame;
+- Show parsing errors;
 - Tidy data, cast to proper types, catch errors;
 - Allow multi-step manipulation on the data frame using data-forge (filter, aggregate etc);
 - Export any step to CSV/Excel;

@@ -38,7 +38,7 @@
 </script>
 
 <Row
-  wrapperClass="divide-x dark:divide-gray-800"
+  wrapperClass="divide-x dark:divide-gray-800 shadow-sm wrapper"
   class="header"
   {item}
   {rowHeight}
@@ -73,6 +73,7 @@
   :global(.header) {
     backdrop-filter: blur(3px);
   }
+
   .resize {
     cursor: col-resize;
   }
